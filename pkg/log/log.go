@@ -47,6 +47,14 @@ func Error(message string, fileds ...zap.Field) {
 	logger.Error(message, fileds...)
 }
 
+func DPanic(message string, fileds ...zap.Field) {
+	logger.DPanic(message, fileds...)
+}
+
+func Panic(message string, fileds ...zap.Field) {
+	logger.Panic(message, fileds...)
+}
+
 func Fatal(message string, fileds ...zap.Field) {
 	logger.Fatal(message, fileds...)
 }

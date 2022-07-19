@@ -14,9 +14,14 @@ func TestSlice(t *testing.T) {
 
 	// s.Remove(3)
 
-	s.RemoveEle(1000)
+	// s.Remove(s.FindIndex(func(ele int) bool {
+	// 	return ele == 1000
+	// }))
 
 	s.Append(123)
 
 	fmt.Println(s, cap(s), len(s))
+
+	fmt.Println(s.Map(func(i int) int { return i + 1 }).Slice())
+
 }

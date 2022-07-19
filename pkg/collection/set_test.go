@@ -19,4 +19,6 @@ func TestSet(t *testing.T) {
 	r := s.Rand()
 	fmt.Println(s.IsMember("a"), s.IsMember("b"), s.IsMember("c"), s.IsMember("d"),
 		s.IsMember("e"), s.IsMember(pop), s.IsMember(r))
+
+	fmt.Println(s.Members())
 }

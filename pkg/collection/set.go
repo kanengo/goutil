@@ -32,6 +32,20 @@ func (s MapSet[T]) Rand() (ret T) {
 	return
 }
 
+func (s MapSet[T]) Members() Slice[T] {
+	members := NewSlice[T](0, len(s))
+	for member := range s {
+		members.Append(member)
+	}
+	return members
+}
+
+func (s MapSet[T]) Clear() {
+	for k := range s {
+		delete(s, k)
+	}
+}
+
 func (s MapSet[T]) Combine(other MapSet[T]) (success int) {
 	for k := range other {
 		if _, ok := s[k]; !ok {

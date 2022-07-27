@@ -17,3 +17,10 @@ const (
 	IterTypeFilter
 	IterTypeMap
 )
+
+type iterTypeFunc[T any] struct {
+	typ     int
+	mapF    func(val T) T
+	filterF func(val T) bool
+	next    *iterTypeFunc[T]
+}

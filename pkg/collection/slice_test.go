@@ -22,6 +22,16 @@ func TestSlice(t *testing.T) {
 
 	fmt.Println(s, cap(s), len(s))
 
-	fmt.Println(s.Map(func(i int) int { return i + 1 }).Slice())
+	si := s.Map(func(val int) int {
+		fmt.Println("m", val)
+		return val + 1
+	}).Filter(func(val int) bool {
+		fmt.Println("f", val)
+		if val == 1001 || val == 4 {
+			return true
+		}
+		return false
+	})
 
+	fmt.Println(si.Slice())
 }

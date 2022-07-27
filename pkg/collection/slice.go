@@ -88,6 +88,10 @@ func (sp *Slice[T]) FindIndex(fn func(ele T) bool) int {
 	return -1
 }
 
+func (sp *Slice[T]) Find(fn func(ele T) bool) bool {
+	return sp.FindIndex(fn) >= 0
+}
+
 func (sp *Slice[T]) Length() int {
 	return len(*sp)
 }
@@ -106,6 +110,85 @@ func NewSlice[T any](args ...int) Slice[T] {
 		sl = args[0]
 	}
 	return make(Slice[T], sl, sc)
+}
+
+func (sp *Slice[T]) Map(f func(val T) T) Iterator[T] {
+	si := SliceIterator[T]{
+		slice: sp,
+	}
+	si.Map(f)
+	return &si
+}
+
+func (sp *Slice[T]) Filter(f func(val T) bool) Iterator[T] {
+	si := SliceIterator[T]{
+		slice: sp,
+	}
+	si.Filter(f)
+	return &si
+}
+
+type SliceIterator[T any] struct {
+	next  *iterTypeFunc[T]
+	slice *Slice[T]
+}
+
+func (si *SliceIterator[T]) Range(fn func(val T) bool) {
+	for _, ele := range *si.slice {
+		iterF := si.next
+		for iterF != nil {
+			switch iterF.typ {
+			case IterTypeFilter:
+				if iterF.filterF(ele) {
+					goto NEXT
+				}
+			case IterTypeMap:
+				ele = iterF.mapF(ele)
+			}
+			iterF = iterF.next
+		}
+		if !fn(ele) {
+			break
+		}
+	NEXT:
+	}
+}
+
+func (si *SliceIterator[T]) Slice() Slice[T] {
+	ret := NewSlice[T]()
+	si.Range(func(val T) bool {
+		ret.Append(val)
+		return true
+	})
+	return ret
+}
+
+func (si *SliceIterator[T]) insertFunc(itf *iterTypeFunc[T]) {
+	if si.next == nil {
+		si.next = itf
+	} else {
+		si.next.next = itf
+	}
+}
+
+func (si *SliceIterator[T]) Map(f func(val T) T) Iterator[T] {
+	itf := &iterTypeFunc[T]{
+		typ:  IterTypeMap,
+		mapF: f,
+	}
+
+	si.insertFunc(itf)
+
+	return si
+}
+
+func (si *SliceIterator[T]) Filter(f func(val T) bool) Iterator[T] {
+	itf := &iterTypeFunc[T]{
+		typ:     IterTypeFilter,
+		filterF: f,
+	}
+	si.insertFunc(itf)
+	return si
 }
 
 // type SliceMapIter[T any] struct {

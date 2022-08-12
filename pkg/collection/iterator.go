@@ -10,6 +10,21 @@ type Iterator[T any] interface {
 	Map(f func(val T) T) Iterator[T]
 	//Filter 过滤符合条件的元素
 	Filter(f func(val T) bool) Iterator[T]
+	//Reduce 类似js的reduce
+	Reduce(f func(previousValue any, val T) any, initialValue any) any
+}
+
+type Pairs[K comparable, V any] struct {
+	k K
+	v V
+}
+
+func (p *Pairs[K, V]) Key() K {
+	return p.k
+}
+
+func (p *Pairs[K, V]) Value() V {
+	return p.v
 }
 
 const (

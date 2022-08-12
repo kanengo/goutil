@@ -128,6 +128,13 @@ func (sp *Slice[T]) Filter(f func(val T) bool) Iterator[T] {
 	return &si
 }
 
+func (sp *Slice[T]) Reduce(f func(previousValue any, val T) any, initialValue any) any {
+	si := SliceIterator[T]{
+		slice: sp,
+	}
+	return si.Reduce(f, initialValue)
+}
+
 type SliceIterator[T any] struct {
 	next  *iterTypeFunc[T]
 	slice *Slice[T]
@@ -189,6 +196,15 @@ func (si *SliceIterator[T]) Filter(f func(val T) bool) Iterator[T] {
 	}
 	si.insertFunc(itf)
 	return si
+}
+
+func (si *SliceIterator[T]) Reduce(f func(previousValue any, val T) any, initialValue any) any {
+	ret := initialValue
+	si.Range(func(val T) bool {
+		ret = f(ret, val)
+		return true
+	})
+	return ret
 }
 
 // type SliceMapIter[T any] struct {

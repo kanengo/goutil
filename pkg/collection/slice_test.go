@@ -23,10 +23,10 @@ func TestSlice(t *testing.T) {
 	fmt.Println(s, cap(s), len(s))
 
 	si := s.Map(func(val int) int {
-		fmt.Println("m", val)
+		// fmt.Println("m", val)
 		return val + 1
 	}).Filter(func(val int) bool {
-		fmt.Println("f", val)
+		// fmt.Println("f", val)
 		if val == 1001 || val == 4 {
 			return true
 		}
@@ -34,4 +34,12 @@ func TestSlice(t *testing.T) {
 	})
 
 	fmt.Println(si.Slice())
+
+	sum := si.Reduce(func(previousValue any, val int) any {
+		sum := previousValue.(int)
+		sum += val
+		return sum
+	}, 0)
+
+	fmt.Println(sum)
 }

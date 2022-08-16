@@ -8,7 +8,8 @@ import (
 )
 
 func TestInfo(t *testing.T) {
-	Info("TestInfo", zap.Time("now", time.Now()))
+	l, _, _ := NewLogger()
+	l.Info("TestInfo", zap.Time("now", time.Now()))
 }
 
 func TestError(t *testing.T) {

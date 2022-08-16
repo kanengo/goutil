@@ -18,6 +18,15 @@ func init() {
 	logger, logApi, _ = zaplog.Init()
 }
 
+func NewLogger(opts ...zaplog.ConfigOption) (*zap.Logger, string, error) {
+	logger, logApi, err := zaplog.Init(opts...)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return logger, logApi, nil
+}
+
 func InitLogger(opts ...zaplog.ConfigOption) error {
 	if logger != nil {
 		logger.Sync()

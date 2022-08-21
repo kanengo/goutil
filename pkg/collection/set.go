@@ -32,7 +32,7 @@ func (s MapSet[T]) Rand() (ret T) {
 	return
 }
 
-func (s MapSet[T]) Members() Slice[T] {
+func (s MapSet[T]) Members() *Slice[T] {
 	members := NewSlice[T](0, len(s))
 	for member := range s {
 		members.Append(member)

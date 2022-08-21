@@ -35,7 +35,7 @@ func (m Map[K, V]) Update(k K, v V) (old V) {
 	return
 }
 
-func (m Map[K, V]) Keys() Slice[K] {
+func (m Map[K, V]) Keys() *Slice[K] {
 	keys := NewSlice[K](0, len(m))
 	for key := range m {
 		keys.Append(key)
@@ -73,7 +73,7 @@ func NewMap[K comparable, V comparable]() Map[K, V] {
 	return make(Map[K, V])
 }
 
-//SyncMap 包装sync.Map
+// SyncMap 包装sync.Map
 type SyncMap[K comparable, V any] struct {
 	sm *sync.Map
 }
@@ -105,7 +105,7 @@ func (m SyncMap[K, V]) Update(k K, v V) {
 	m.sm.Store(k, v)
 }
 
-func (m SyncMap[K, V]) Keys() Slice[K] {
+func (m SyncMap[K, V]) Keys() *Slice[K] {
 	keys := NewSlice[K]()
 	m.sm.Range(func(key, value any) bool {
 		keys.Append(key.(K))

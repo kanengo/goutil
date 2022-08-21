@@ -7,7 +7,8 @@ import (
 
 func TestSlice(t *testing.T) {
 	s := NewSlice[int]()
-	s.Append(1, 2, 3)
+	sb := s
+	s.Append(1, 2, 3, 4, 5, 6, 7)
 
 	s.Insert(2, 1000, 1001, 1002)
 	s.Insert(2, 99)
@@ -20,7 +21,7 @@ func TestSlice(t *testing.T) {
 
 	s.Append(123)
 
-	fmt.Println(s, cap(s), len(s))
+	fmt.Println(s, cap(*s), len(*s))
 
 	si := s.Map(func(val int) int {
 		// fmt.Println("m", val)
@@ -41,5 +42,7 @@ func TestSlice(t *testing.T) {
 		return sum
 	}, 0)
 
-	fmt.Println(sum)
+	_ = sum
+
+	fmt.Println(sb)
 }

@@ -7,79 +7,88 @@ import (
 
 type Slice[T any] []T
 
-func (sp *Slice[T]) Append(ele ...T) {
-	if len(*sp)+len(ele) > cap(*sp) { //扩容
-		newCap := len(*sp) + len(ele)
-		newCap += newCap >> 1
-		newSlice := make(Slice[T], 0, newCap)
-		*sp = append(newSlice, (*sp)...)
+func (s *Slice[T]) At(index int) (ret T, err error) {
+	if !s.checkBound(index) {
+		return ret, fmt.Errorf("the index is out of the slice bound")
 	}
-	*sp = append(*sp, ele...)
+	ret = (*s)[index]
+
+	return
 }
 
-func (s Slice[T]) checkBound(index int) bool {
-	if index < 0 || index >= len(s) {
+func (s *Slice[T]) Append(ele ...T) {
+	if len(*s)+len(ele) > cap(*s) { //扩容
+		newCap := len(*s) + len(ele)
+		newCap += newCap >> 1
+		newSlice := make(Slice[T], 0, newCap)
+		*s = append(newSlice, (*s)...)
+	}
+	*s = append(*s, ele...)
+}
+
+func (s *Slice[T]) checkBound(index int) bool {
+	if index < 0 || index >= len(*s) {
 		return false
 	}
 	return true
 }
 
-func (s Slice[T]) Update(index int, ele T) error {
+func (s *Slice[T]) Update(index int, ele T) error {
 	if !s.checkBound(index) {
 		return fmt.Errorf("the index is out of the slice bound")
 	}
-	s[index] = ele
+	(*s)[index] = ele
 	return nil
 }
 
-func (sp *Slice[T]) Insert(index int, ele ...T) error {
-	if !sp.checkBound(index) {
+func (s *Slice[T]) Insert(index int, ele ...T) error {
+	if !s.checkBound(index) {
 		return fmt.Errorf("the index is out of the slice bound")
 	}
-	if cap(*sp) >= len(*sp)+len(ele) {
-		tmp := (*sp)[len(*sp)-1]
+	if cap(*s) >= len(*s)+len(ele) {
+		tmp := (*s)[len(*s)-1]
 		eleLen := len(ele)
 		for i := 0; i < eleLen; i++ {
-			*sp = append(*sp, tmp)
+			*s = append(*s, tmp)
 		}
-		for i := len(*sp) - eleLen - 1; i >= index; i-- {
-			(*sp)[i+eleLen] = (*sp)[i]
+		for i := len(*s) - eleLen - 1; i >= index; i-- {
+			(*s)[i+eleLen] = (*s)[i]
 		}
 		elei := 0
 		for i := index; i < index+eleLen; i++ {
-			(*sp)[i] = ele[elei]
+			(*s)[i] = ele[elei]
 			elei += 1
 		}
 	} else {
-		part1 := (*sp)[:index]
-		part2 := (*sp)[index:]
-		newCap := len(*sp) + len(ele)
+		part1 := (*s)[:index]
+		part2 := (*s)[index:]
+		newCap := len(*s) + len(ele)
 		newCap += newCap >> 1
 		newSlice := make(Slice[T], 0, newCap)
-		*sp = append(newSlice, part1...)
-		*sp = append(*sp, ele...)
-		*sp = append(*sp, part2...)
+		*s = append(newSlice, part1...)
+		*s = append(*s, ele...)
+		*s = append(*s, part2...)
 	}
 
 	return nil
 }
 
-func (sp *Slice[T]) Remove(index int) error {
-	if !sp.checkBound(index) {
+func (s *Slice[T]) Remove(index int) error {
+	if !s.checkBound(index) {
 		return fmt.Errorf("the index is out of the slice bound")
 	}
 
-	for i := index; i < len(*sp)-1; i++ {
-		(*sp)[i] = (*sp)[i+1]
+	for i := index; i < len(*s)-1; i++ {
+		(*s)[i] = (*s)[i+1]
 	}
 
-	(*sp) = (*sp)[:len(*sp)-1]
+	(*s) = (*s)[:len(*s)-1]
 
 	return nil
 }
 
-func (sp *Slice[T]) FindIndex(fn func(ele T) bool) int {
-	for i, ele := range *sp {
+func (s *Slice[T]) FindIndex(fn func(ele T) bool) int {
+	for i, ele := range *s {
 		if fn(ele) {
 			return i
 		}
@@ -88,19 +97,23 @@ func (sp *Slice[T]) FindIndex(fn func(ele T) bool) int {
 	return -1
 }
 
-func (sp *Slice[T]) Find(fn func(ele T) bool) bool {
-	return sp.FindIndex(fn) >= 0
+func (s *Slice[T]) Find(fn func(ele T) bool) bool {
+	return s.FindIndex(fn) >= 0
 }
 
-func (sp *Slice[T]) Length() int {
-	return len(*sp)
+func (s *Slice[T]) Length() int {
+	return len(*s)
 }
 
-func (sp *Slice[T]) Clear() {
-	(*sp) = (*sp)[:0]
+func (s *Slice[T]) Clear() {
+	(*s) = (*s)[:0]
 }
 
-func NewSlice[T any](args ...int) Slice[T] {
+func (s *Slice[T]) Source() []T {
+	return *s
+}
+
+func NewSlice[T any](args ...int) *Slice[T] {
 	sl := 0
 	sc := 0
 	if len(args) >= 2 {
@@ -109,30 +122,40 @@ func NewSlice[T any](args ...int) Slice[T] {
 	} else if len(args) >= 1 {
 		sl = args[0]
 	}
-	return make(Slice[T], sl, sc)
+	ret := make(Slice[T], sl, sc)
+
+	return &ret
 }
 
-func (sp *Slice[T]) Map(f func(val T) T) Iterator[T] {
+func (s *Slice[T]) Map(f func(val T) T) Iterator[T] {
 	si := SliceIterator[T]{
-		slice: sp,
+		slice: s,
 	}
 	si.Map(f)
 	return &si
 }
 
-func (sp *Slice[T]) Filter(f func(val T) bool) Iterator[T] {
+func (s *Slice[T]) Filter(f func(val T) bool) Iterator[T] {
 	si := SliceIterator[T]{
-		slice: sp,
+		slice: s,
 	}
 	si.Filter(f)
 	return &si
 }
 
-func (sp *Slice[T]) Reduce(f func(previousValue any, val T) any, initialValue any) any {
+func (s *Slice[T]) Reduce(f func(previousValue any, val T) any, initialValue any) any {
 	si := SliceIterator[T]{
-		slice: sp,
+		slice: s,
 	}
 	return si.Reduce(f, initialValue)
+}
+
+func (s *Slice[T]) Range(fn func(val T, index int) bool) {
+	for i, ele := range *s {
+		if !fn(ele, i) {
+			break
+		}
+	}
 }
 
 type SliceIterator[T any] struct {
@@ -161,7 +184,7 @@ func (si *SliceIterator[T]) Range(fn func(val T) bool) {
 	}
 }
 
-func (si *SliceIterator[T]) Slice() Slice[T] {
+func (si *SliceIterator[T]) Slice() *Slice[T] {
 	ret := NewSlice[T]()
 	si.Range(func(val T) bool {
 		ret.Append(val)

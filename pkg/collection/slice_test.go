@@ -21,7 +21,7 @@ func TestSlice(t *testing.T) {
 
 	s.Append(123)
 
-	fmt.Println(s, cap(*s), len(*s))
+	fmt.Println(s.Source(), cap(*s.s), len(*s.s))
 
 	si := s.Map(func(val int) int {
 		// fmt.Println("m", val)
@@ -34,7 +34,7 @@ func TestSlice(t *testing.T) {
 		return false
 	})
 
-	fmt.Println(si.Slice())
+	fmt.Println(si.Slice().Source())
 
 	sum := si.Reduce(func(previousValue any, val int) any {
 		sum := previousValue.(int)
@@ -44,5 +44,5 @@ func TestSlice(t *testing.T) {
 
 	_ = sum
 
-	fmt.Println(sb)
+	fmt.Println(sb.Source())
 }

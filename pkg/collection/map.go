@@ -1,14 +1,13 @@
 package collection
 
-import (
-	"sync"
-)
-
-type Map[K comparable, V any] map[K]V
+type Map[K comparable, V any] struct {
+	m map[K]V
+	*defaultIterator[Pairs[K, V]]
+}
 
 func (m Map[K, V]) Add(k K, v V) (success bool) {
-	if _, ok := m[k]; !ok {
-		m[k] = v
+	if _, ok := m.m[k]; !ok {
+		m.m[k] = v
 		success = true
 	}
 
@@ -16,13 +15,13 @@ func (m Map[K, V]) Add(k K, v V) (success bool) {
 }
 
 func (m Map[K, V]) Remove(k K) V {
-	v := m[k]
-	delete(m, k)
+	v := m.m[k]
+	delete(m.m, k)
 	return v
 }
 
 func (m Map[K, V]) Get(k K, def ...V) (V, bool) {
-	v, ok := m[k]
+	v, ok := m.m[k]
 	if !ok && len(def) > 0 {
 		return def[0], false
 	}
@@ -30,14 +29,14 @@ func (m Map[K, V]) Get(k K, def ...V) (V, bool) {
 }
 
 func (m Map[K, V]) Update(k K, v V) (old V) {
-	old = m[k]
-	m[k] = v
+	old = m.m[k]
+	m.m[k] = v
 	return
 }
 
 func (m Map[K, V]) Keys() *Slice[K] {
-	keys := NewSlice[K](0, len(m))
-	for key := range m {
+	keys := NewSlice[K](0, len(m.m))
+	for key := range m.m {
 		keys.Append(key)
 	}
 
@@ -45,8 +44,8 @@ func (m Map[K, V]) Keys() *Slice[K] {
 }
 
 func (m Map[K, V]) Values() []V {
-	values := make([]V, 0, len(m))
-	for _, value := range m {
+	values := make([]V, 0, len(m.m))
+	for _, value := range m.m {
 		values = append(values, value)
 	}
 
@@ -54,92 +53,35 @@ func (m Map[K, V]) Values() []V {
 }
 
 func (m Map[K, V]) Clear() {
-	for k := range m {
-		delete(m, k)
+	for k := range m.m {
+		delete(m.m, k)
 	}
 }
 
 func (m Map[K, V]) Combine(other Map[K, V]) (success int) {
-	for k, v := range other {
-		if _, ok := m[k]; !ok {
-			m[k] = v
+	for k, v := range other.m {
+		if _, ok := m.m[k]; !ok {
+			m.m[k] = v
 			success += 1
 		}
 	}
 	return
 }
 
-func NewMap[K comparable, V comparable]() Map[K, V] {
-	return make(Map[K, V])
-}
-
-// SyncMap 包装sync.Map
-type SyncMap[K comparable, V any] struct {
-	sm *sync.Map
-}
-
-func (m SyncMap[K, V]) Add(k K, v V) {
-	m.sm.Store(k, v)
-}
-
-func (m SyncMap[K, V]) Remove(k K) V {
-	v, loaded := m.sm.LoadAndDelete(k)
-	if !loaded {
-		var zero V
-		return zero
+func (m Map[K, V]) Range(fn func(p Pairs[K, V]) bool) {
+	for key, value := range m.m {
+		if !fn(Pairs[K, V]{key, value}) {
+			break
+		}
 	}
-	return v.(V)
 }
 
-func (m SyncMap[K, V]) Get(k K) (V, bool) {
-	val, ok := m.sm.Load(k)
-	if !ok {
-		var zero V
-		return zero, ok
+func NewMap[K comparable, V comparable]() *Map[K, V] {
+	m := &Map[K, V]{
+		m: make(map[K]V, 10),
 	}
-
-	return val.(V), true
-}
-
-func (m SyncMap[K, V]) Update(k K, v V) {
-	m.sm.Store(k, v)
-}
-
-func (m SyncMap[K, V]) Keys() *Slice[K] {
-	keys := NewSlice[K]()
-	m.sm.Range(func(key, value any) bool {
-		keys.Append(key.(K))
-		return true
-	})
-
-	return keys
-}
-
-func (m SyncMap[K, V]) Values() []V {
-	values := make([]V, 0)
-	m.sm.Range(func(key, value any) bool {
-		values = append(values, value.(V))
-		return true
-	})
-
-	return values
-}
-
-func (m SyncMap[K, V]) Clear() {
-	m.sm.Range(func(key, value any) bool {
-		m.sm.Delete(key)
-		return true
-	})
-}
-
-func (m SyncMap[K, V]) Range(fn func(k K, v V) bool) {
-	m.sm.Range(func(key, value any) bool {
-		return fn(key.(K), value.(V))
-	})
-}
-
-func NewSyncMap[K comparable, V comparable]() SyncMap[K, V] {
-	return SyncMap[K, V]{
-		sm: &sync.Map{},
+	m.defaultIterator = &defaultIterator[Pairs[K, V]]{
+		Ranger: m,
 	}
+	return m
 }

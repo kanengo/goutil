@@ -40,31 +40,79 @@ func InitLogger(opts ...zaplog.ConfigOption) error {
 	return nil
 }
 
+var beforeLogHandler func() []zap.Field
+
+func SetBeforeLogHandler(handler func() []zap.Field) {
+	beforeLogHandler = handler
+}
+
 func Debug(message string, fields ...zap.Field) {
+	if beforeLogHandler != nil {
+		fs := beforeLogHandler()
+		if len(fs) > 0 {
+			fields = append(fields, fs...)
+		}
+	}
 	logger.Debug(message, fields...)
 }
 
 func Info(message string, fields ...zap.Field) {
+	if beforeLogHandler != nil {
+		fs := beforeLogHandler()
+		if len(fs) > 0 {
+			fields = append(fields, fs...)
+		}
+	}
 	logger.Info(message, fields...)
 }
 
 func Warn(message string, fields ...zap.Field) {
+	if beforeLogHandler != nil {
+		fs := beforeLogHandler()
+		if len(fs) > 0 {
+			fields = append(fields, fs...)
+		}
+	}
 	logger.Warn(message, fields...)
 }
 
 func Error(message string, fields ...zap.Field) {
+	if beforeLogHandler != nil {
+		fs := beforeLogHandler()
+		if len(fs) > 0 {
+			fields = append(fields, fs...)
+		}
+	}
 	logger.Error(message, fields...)
 }
 
 func DPanic(message string, fields ...zap.Field) {
+	if beforeLogHandler != nil {
+		fs := beforeLogHandler()
+		if len(fs) > 0 {
+			fields = append(fields, fs...)
+		}
+	}
 	logger.DPanic(message, fields...)
 }
 
 func Panic(message string, fields ...zap.Field) {
+	if beforeLogHandler != nil {
+		fs := beforeLogHandler()
+		if len(fs) > 0 {
+			fields = append(fields, fs...)
+		}
+	}
 	logger.Panic(message, fields...)
 }
 
 func Fatal(message string, fields ...zap.Field) {
+	if beforeLogHandler != nil {
+		fs := beforeLogHandler()
+		if len(fs) > 0 {
+			fields = append(fields, fs...)
+		}
+	}
 	logger.Fatal(message, fields...)
 }
 

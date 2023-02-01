@@ -9,24 +9,43 @@ import (
 	"github.com/kanengo/goutil/pkg/utils"
 )
 
-func Go(fn func()) {
-	go func() {
-		utils.CheckGoPanic(context.Background(), nil)
-		fn()
-	}()
+type Runnable func()
+
+func Go(fn Runnable) {
+	GoSafe(context.Background(), fn)
 }
 
-func GoSafe(ctx context.Context, fn func()) {
-	go func() {
-		utils.CheckGoPanic(ctx, nil)
-		fn()
-	}()
+func GoSafe(ctx context.Context, fn Runnable) {
+	GoSafeWithPanicHandler(ctx, fn, nil)
 }
 
 func GoSafeWithPanicHandler(ctx context.Context, fn func(), panicHandler func(context.Context)) {
+	copied := createInheritedMap()
+	fmt.Println(copied.table)
 	go func() {
-		utils.CheckGoPanic(ctx, panicHandler)
-		fn()
+		defer func() {
+			utils.CheckGoPanic(ctx, panicHandler)
+		}()
+		t := currentThread(copied != nil)
+		if t == nil {
+			defer func() {
+				t = currentThread(false)
+				if t != nil {
+					t.threadLocals = nil
+					t.inheritableThreadLocals = nil
+				}
+			}()
+			fn()
+		} else {
+			backup := t.inheritableThreadLocals
+			defer func() {
+				t.threadLocals = nil
+				t.inheritableThreadLocals = backup
+			}()
+			t.threadLocals = nil
+			t.inheritableThreadLocals = copied
+			fn()
+		}
 	}()
 }
 

@@ -40,32 +40,32 @@ func InitLogger(opts ...zaplog.ConfigOption) error {
 	return nil
 }
 
-func Debug(message string, fileds ...zap.Field) {
-	logger.Debug(message, fileds...)
+func Debug(message string, fields ...zap.Field) {
+	logger.Debug(message, fields...)
 }
 
-func Info(message string, fileds ...zap.Field) {
-	logger.Info(message, fileds...)
+func Info(message string, fields ...zap.Field) {
+	logger.Info(message, fields...)
 }
 
-func Warn(message string, fileds ...zap.Field) {
-	logger.Warn(message, fileds...)
+func Warn(message string, fields ...zap.Field) {
+	logger.Warn(message, fields...)
 }
 
-func Error(message string, fileds ...zap.Field) {
-	logger.Error(message, fileds...)
+func Error(message string, fields ...zap.Field) {
+	logger.Error(message, fields...)
 }
 
-func DPanic(message string, fileds ...zap.Field) {
-	logger.DPanic(message, fileds...)
+func DPanic(message string, fields ...zap.Field) {
+	logger.DPanic(message, fields...)
 }
 
-func Panic(message string, fileds ...zap.Field) {
-	logger.Panic(message, fileds...)
+func Panic(message string, fields ...zap.Field) {
+	logger.Panic(message, fields...)
 }
 
-func Fatal(message string, fileds ...zap.Field) {
-	logger.Fatal(message, fileds...)
+func Fatal(message string, fields ...zap.Field) {
+	logger.Fatal(message, fields...)
 }
 
 func SetLogLevel(level string) error {

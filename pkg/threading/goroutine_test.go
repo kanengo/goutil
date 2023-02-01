@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kanengo/goutil/pkg/gls"
 	"github.com/kanengo/goutil/pkg/threading/gopool"
 	"github.com/kanengo/goutil/pkg/utils"
 )
@@ -95,4 +96,24 @@ func BenchmarkGo(b *testing.B) {
 		}
 		wg.Wait()
 	}
+}
+
+func TestGoInheritable(t *testing.T) {
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	gls.InheritableThreadLocalSet[int64]("go-1", 10)
+	Go(func() {
+		defer wg.Done()
+		v, _ := gls.InheritableThreadLocalGet[int64]("go-1")
+		fmt.Println("1-", v)
+		gls.InheritableThreadLocalSet[int64]("go-2", 20)
+		Go(func() {
+			defer wg.Done()
+			v1, _ := gls.InheritableThreadLocalGet[int64]("go-1")
+			v2, _ := gls.InheritableThreadLocalGet[int64]("go-2")
+			fmt.Println("2-", v1, v2)
+		})
+	})
+
+	wg.Wait()
 }

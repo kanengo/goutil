@@ -15,7 +15,7 @@ func SetCommonPanicRecoverHandler(fn func(ctx context.Context)) {
 
 func CheckGoPanic(ctx context.Context, callback func(context.Context)) {
 	if r := recover(); r != nil {
-		log.DPanic("panic recoverd", zap.Any("msg", r))
+		log.DPanic("panic recover", zap.Any("msg", r))
 		if callback != nil {
 			callback(ctx)
 		} else if panicRecoverHandlerFn != nil {
@@ -23,4 +23,3 @@ func CheckGoPanic(ctx context.Context, callback func(context.Context)) {
 		}
 	}
 }
-

@@ -40,6 +40,10 @@ func InitLogger(opts ...zaplog.ConfigOption) error {
 	return nil
 }
 
+func Sync() error {
+	return logger.Sync()
+}
+
 var beforeLogHandler func() []zap.Field
 
 func SetBeforeLogHandler(handler func() []zap.Field) {
@@ -53,6 +57,7 @@ func Debug(message string, fields ...zap.Field) {
 			fields = append(fields, fs...)
 		}
 	}
+
 	logger.Debug(message, fields...)
 }
 

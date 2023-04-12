@@ -21,7 +21,7 @@ func GoSafe(ctx context.Context, fn Runnable) {
 
 func GoSafeWithPanicHandler(ctx context.Context, fn func(), panicHandler func(context.Context)) {
 	copied := createInheritedMap()
-	fmt.Println(copied.table)
+
 	go func() {
 		defer func() {
 			utils.CheckGoPanic(ctx, panicHandler)

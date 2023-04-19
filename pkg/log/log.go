@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"go.uber.org/zap/zapcore"
 	"net/http"
 	"strings"
 
@@ -134,12 +135,13 @@ func SetLogLevel(level string) error {
 	}
 	client := http.Client{}
 
-	type payload struct {
-		Level string `json:"level"`
+	l, _ := zapcore.ParseLevel(level)
+	var payload struct {
+		Level *zapcore.Level `json:"level"`
 	}
 
-	myPayload := payload{Level: level}
-	buf, err := json.Marshal(myPayload)
+	payload.Level = &l
+	buf, err := json.Marshal(payload)
 	if err != nil {
 		return err
 	}

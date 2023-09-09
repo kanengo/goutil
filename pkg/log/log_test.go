@@ -8,8 +8,10 @@ import (
 )
 
 func TestInfo(t *testing.T) {
-	l, _, _ := NewLogger()
-	l.Info("TestInfo", zap.Time("now", time.Now()))
+	InitLogger()
+	logger.Info("TestInfo", zap.Time("now", time.Now()))
+	SetLogLevel("debug")
+	logger.Debug("debug")
 }
 
 func TestError(t *testing.T) {

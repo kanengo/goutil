@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/kanengo/goutil/pkg/threading/gopool"
-	"github.com/kanengo/goutil/pkg/utils"
 )
 
 type Runnable func()
@@ -24,7 +23,7 @@ func GoSafeWithPanicHandler(ctx context.Context, fn func(), panicHandler func(co
 
 	go func() {
 		defer func() {
-			utils.CheckGoPanic(ctx, panicHandler)
+			panicHandler(ctx)
 		}()
 		t := currentThread(copied != nil)
 		if t == nil {

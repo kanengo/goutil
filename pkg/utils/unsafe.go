@@ -2,12 +2,19 @@ package utils
 
 import "unsafe"
 
-func SliceByteToStringUnsafe(b []byte) string {
-	return *((*string)(unsafe.Pointer(&b)))
+// BytesToReadOnlyString returns a string converted from given bytes.
+func BytesToReadOnlyString(b []byte) string {
+	if len(b) == 0 {
+		return ""
+	}
+	return unsafe.String(&b[0], len(b))
 }
 
-func StringToSliceBytesUnsafe(s string) []byte {
-	x := (*[2]uintptr)(unsafe.Pointer(&s))
-	b := [3]uintptr{x[0], x[1], x[1]}
-	return *(*[]byte)(unsafe.Pointer(&b))
+// StringToReadOnlyBytes returns bytes converted from given string.
+func StringToReadOnlyBytes(s string) (bs []byte) {
+	if len(s) == 0 {
+		return nil
+	}
+	bs = unsafe.Slice(unsafe.StringData(s), len(s))
+	return
 }

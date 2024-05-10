@@ -18,6 +18,7 @@ type RunnerManager struct {
 }
 
 // NewRunnerManager creates a new RunnerManager.
+// 等待所有任务结束
 func NewRunnerManager(runners ...Runner) *RunnerManager {
 	return &RunnerManager{
 		runners: runners,

@@ -7,8 +7,6 @@ import (
 	"io"
 	"sync/atomic"
 	"time"
-
-	"github.com/kanengo/goutil/pkg/log"
 )
 
 var ErrManagerAlreadyClosed = errors.New("runner manager already closed")
@@ -48,10 +46,10 @@ func NewRunnerCloserManager(gracePeriod time.Duration, runners ...Runner) *Runne
 	}
 
 	c.fatalShutdownFn = func() {
-		log.Fatal("Graceful shutdown timeout exceeded, forcing shutdown")
+		panic("\"Graceful shutdown timeout exceeded, forcing shutdown\"")
 	}
 
-	c.AddCloser(func() {
+	_ = c.AddCloser(func() {
 		// log.Debugf("Graceful shutdown timeout: %s", *gracePeriod)
 
 		t := time.NewTimer(gracePeriod)

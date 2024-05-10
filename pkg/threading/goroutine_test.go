@@ -1,7 +1,6 @@
 package threading
 
 import (
-	"context"
 	"fmt"
 	"runtime"
 	"sync"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/kanengo/goutil/pkg/gls"
 	"github.com/kanengo/goutil/pkg/threading/gopool"
-	"github.com/kanengo/goutil/pkg/utils"
 )
 
 func testPanicFunc() {
@@ -38,9 +36,7 @@ func TestPool(t *testing.T) {
 const benchmarkTimes = 10000
 
 func TestPoolPanic(t *testing.T) {
-	utils.SetCommonPanicRecoverHandler(func(ctx context.Context) {
-		fmt.Println("catch panic utils default")
-	})
+
 	p := gopool.NewPool("test", 100, gopool.NewConfig())
 	// p.SetPanicHandler(func(ctx context.Context) {
 	// 	fmt.Println("catch panic poll default")

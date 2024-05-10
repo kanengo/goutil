@@ -19,8 +19,10 @@ func (ls localStorage) Clone() any {
 	return bak
 }
 
-var threadLocal = routine.NewThreadLocal()
-var inheritableThreadLocal = routine.NewInheritableThreadLocal()
+type ThreadLocal[T any] routine.ThreadLocal[T]
+
+var threadLocal = routine.NewThreadLocal[localStorage]()
+var inheritableThreadLocal = routine.NewInheritableThreadLocal[localStorage]()
 
 func ThreadLocalSet[T any](key string, value T) {
 	var storage localStorage
@@ -28,7 +30,7 @@ func ThreadLocalSet[T any](key string, value T) {
 	if v == nil {
 		storage = make(localStorage)
 	} else {
-		storage = v.(localStorage)
+		storage = v
 	}
 	storage[key] = value
 	threadLocal.Set(storage)
@@ -40,7 +42,7 @@ func ThreadLocalGet[T any](key string) (ret T, ok bool) {
 	if tv == nil {
 		storage = make(localStorage)
 	} else {
-		storage = tv.(localStorage)
+		storage = tv
 	}
 
 	v, ok := storage[key]
@@ -57,7 +59,7 @@ func InheritableThreadLocalSet[T any](key string, value T) {
 	if v == nil {
 		storage = make(localStorage)
 	} else {
-		storage = v.(localStorage)
+		storage = v
 	}
 	storage[key] = value
 	inheritableThreadLocal.Set(storage)
@@ -68,11 +70,7 @@ func InheritableThreadLocalGet[T any](key string) (ret T, ok bool) {
 	if tv == nil {
 		return ret, false
 	}
-	storage := tv.(localStorage)
-
-	if storage == nil {
-		return ret, false
-	}
+	storage := tv
 
 	v, ok := storage[key]
 	if ok {

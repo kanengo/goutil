@@ -4,8 +4,6 @@ import (
 	"context"
 	"sync"
 	"sync/atomic"
-
-	"github.com/kanengo/goutil/pkg/utils"
 )
 
 var workerPool sync.Pool
@@ -46,7 +44,11 @@ func (w *worker) run() {
 				} else if w.pool.panicHandler != nil {
 					panicHandler = w.pool.panicHandler
 				}
-				defer utils.CheckGoPanic(t.ctx, panicHandler)
+				defer func() {
+					if r := recover(); r != nil {
+						panicHandler(context.TODO())
+					}
+				}()
 				t.fn()
 			}()
 			t.Recycle()

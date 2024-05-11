@@ -10,7 +10,7 @@ func TestThreadLocalGetSet(t *testing.T) {
 	ThreadLocalSet[string]("go-1", "hello-1")
 	ThreadLocalSet[string]("go-1", "world-1")
 	ret, ok := ThreadLocalGet[string]("go-1")
-	fmt.Println(ret, ok)
+	fmt.Println(ret, ok, "1")
 
 	wg := sync.WaitGroup{}
 
@@ -20,7 +20,7 @@ func TestThreadLocalGetSet(t *testing.T) {
 		ThreadLocalSet[string]("go-2", "hello-2")
 		ThreadLocalSet[string]("go-2", "world-2")
 		ret, ok := ThreadLocalGet[string]("go-1")
-		fmt.Println(ret, ok)
+		fmt.Println(ret, ok, "2")
 	}()
 
 	go func() {
@@ -28,7 +28,7 @@ func TestThreadLocalGetSet(t *testing.T) {
 		ThreadLocalSet[string]("go-3", "hello-3")
 		ThreadLocalSet[string]("go-3", "world-3")
 		ret, ok := ThreadLocalGet[string]("go-3")
-		fmt.Println(ret, ok)
+		fmt.Println(ret, ok, "3")
 	}()
 
 	wg.Wait()

@@ -18,3 +18,11 @@ func TestGoId(t *testing.T) {
 	}
 	wg.Wait()
 }
+
+func BenchmarkGoId(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		id := GoId()
+
+		_ = id
+	}
+}
